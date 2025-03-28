@@ -116,7 +116,7 @@ export default function SubscriptionsList() {
       <DashboardBackground />
       
       <motion.div 
-        className="space-y-8 px-4 py-10 max-w-7xl mx-auto"
+        className="space-y-8 px-4 py-10 max-w-full mx-auto"
         initial="hidden"
         animate="visible"
         variants={containerVariants}
@@ -198,29 +198,29 @@ export default function SubscriptionsList() {
                 </div>
               </div>
             ) : (
-              <div className="overflow-x-auto px-2">
-                <table className="min-w-full divide-y divide-gray-700/30">
+              <div className="overflow-x-auto">
+                <table className="w-full divide-y divide-gray-700/30">
                   <thead className="bg-gray-800/40">
                     <tr>
-                      <th className="px-8 py-4 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                      <th className="px-6 py-4 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
                         Service
                       </th>
-                      <th className="px-8 py-4 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                      <th className="px-6 py-4 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
                         Category
                       </th>
-                      <th className="px-8 py-4 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                      <th className="px-6 py-4 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
                         Amount
                       </th>
-                      <th className="px-8 py-4 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                      <th className="px-6 py-4 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
                         Billing Cycle
                       </th>
-                      <th className="px-8 py-4 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                      <th className="px-6 py-4 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
                         Next Payment
                       </th>
-                      <th className="px-8 py-4 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                      <th className="px-6 py-4 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
                         Status
                       </th>
-                      <th className="px-8 py-4 text-right text-xs font-medium text-gray-300 uppercase tracking-wider">
+                      <th className="px-6 py-4 text-right text-xs font-medium text-gray-300 uppercase tracking-wider">
                         Actions
                       </th>
                     </tr>
@@ -228,32 +228,32 @@ export default function SubscriptionsList() {
                   <tbody className="divide-y divide-gray-700/30">
                     {filteredSubscriptions.map((subscription) => (
                       <tr key={subscription._id} className="hover:bg-gray-800/30 transition-colors">
-                        <td className="px-8 py-5 whitespace-nowrap">
+                        <td className="px-6 py-5 whitespace-nowrap">
                           <div className="text-sm font-medium text-white">
                             {subscription.serviceName}
                           </div>
                         </td>
-                        <td className="px-8 py-5 whitespace-nowrap">
+                        <td className="px-6 py-5 whitespace-nowrap">
                           <div className="text-sm text-gray-300">
                             {subscription.category}
                           </div>
                         </td>
-                        <td className="px-8 py-5 whitespace-nowrap">
+                        <td className="px-6 py-5 whitespace-nowrap">
                           <div className="text-sm font-medium text-teal-300">
                             ${subscription.amount.toFixed(2)}
                           </div>
                         </td>
-                        <td className="px-8 py-5 whitespace-nowrap">
+                        <td className="px-6 py-5 whitespace-nowrap">
                           <div className="text-sm text-gray-300">
                             {subscription.billingCycle.charAt(0).toUpperCase() + subscription.billingCycle.slice(1)}
                           </div>
                         </td>
-                        <td className="px-8 py-5 whitespace-nowrap">
+                        <td className="px-6 py-5 whitespace-nowrap">
                           <div className="text-sm text-gray-300">
                             {format(new Date(subscription.nextBillingDate), "MMM d, yyyy")}
                           </div>
                         </td>
-                        <td className="px-8 py-5 whitespace-nowrap">
+                        <td className="px-6 py-5 whitespace-nowrap">
                           <span
                             className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
                               subscription.status === "active"
@@ -266,7 +266,7 @@ export default function SubscriptionsList() {
                             {subscription.status.charAt(0).toUpperCase() + subscription.status.slice(1)}
                           </span>
                         </td>
-                        <td className="px-8 py-5 whitespace-nowrap text-right text-sm font-medium">
+                        <td className="px-6 py-5 whitespace-nowrap text-right text-sm font-medium">
                           <Link
                             href={`/dashboard/subscriptions/${subscription._id}`}
                             className="text-cyan-400 hover:text-cyan-300 mr-4 transition-colors"

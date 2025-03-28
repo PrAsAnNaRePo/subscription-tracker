@@ -66,7 +66,7 @@ export default function Settings() {
       <DashboardBackground />
       
       <motion.div 
-        className="space-y-8 px-4 py-10 max-w-3xl mx-auto"
+        className="space-y-8 px-4 py-10 max-w-5xl mx-auto"
         initial="hidden"
         animate="visible"
         variants={containerVariants}
@@ -101,45 +101,47 @@ export default function Settings() {
                 </div>
               )}
 
-              <div>
-                <label
-                  htmlFor="currency"
-                  className="block text-sm font-medium text-gray-300 mb-2"
-                >
-                  Default Currency
-                </label>
-                <select
-                  id="currency"
-                  value={currencyPreference}
-                  onChange={(e) => setCurrencyPreference(e.target.value)}
-                  className="w-full px-3 py-2 rounded-lg shadow-md focus:outline-none bg-gray-800/40 backdrop-blur-md border border-gray-700/50 text-gray-200 focus:border-indigo-500/50 hover:border-gray-600/70 transition-all"
-                >
-                  {currencies.map((currency) => (
-                    <option key={currency.code} value={currency.code}>
-                      {currency.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div>
+                  <label
+                    htmlFor="currency"
+                    className="block text-sm font-medium text-gray-300 mb-2"
+                  >
+                    Default Currency
+                  </label>
+                  <select
+                    id="currency"
+                    value={currencyPreference}
+                    onChange={(e) => setCurrencyPreference(e.target.value)}
+                    className="w-full px-3 py-2 rounded-lg shadow-md focus:outline-none bg-gray-800/40 backdrop-blur-md border border-gray-700/50 text-gray-200 focus:border-indigo-500/50 hover:border-gray-600/70 transition-all"
+                  >
+                    {currencies.map((currency) => (
+                      <option key={currency.code} value={currency.code}>
+                        {currency.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
 
-              <div>
-                <label
-                  htmlFor="reminderDays"
-                  className="block text-sm font-medium text-gray-300 mb-2"
-                >
-                  Reminder Days Before Billing
-                </label>
-                <Input
-                  id="reminderDays"
-                  type="number"
-                  min="1"
-                  max="30"
-                  value={reminderDays.toString()}
-                  onChange={(e) => setReminderDays(parseInt(e.target.value))}
-                />
-                <p className="mt-1 text-sm text-gray-400">
-                  Get notified this many days before a subscription renews
-                </p>
+                <div>
+                  <label
+                    htmlFor="reminderDays"
+                    className="block text-sm font-medium text-gray-300 mb-2"
+                  >
+                    Reminder Days Before Billing
+                  </label>
+                  <Input
+                    id="reminderDays"
+                    type="number"
+                    min="1"
+                    max="30"
+                    value={reminderDays.toString()}
+                    onChange={(e) => setReminderDays(parseInt(e.target.value))}
+                  />
+                  <p className="mt-1 text-sm text-gray-400">
+                    Get notified this many days before a subscription renews
+                  </p>
+                </div>
               </div>
 
               <div className="flex items-start mt-4">

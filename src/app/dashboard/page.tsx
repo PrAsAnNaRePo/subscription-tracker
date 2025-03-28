@@ -125,7 +125,7 @@ export default function Dashboard() {
       <DashboardBackground />
       
       <motion.div 
-        className="space-y-12 px-4 py-10 max-w-7xl mx-auto"
+        className="space-y-12 px-4 py-10 max-w-full mx-auto"
         initial="hidden"
         animate="visible"
         variants={containerVariants}
@@ -151,7 +151,7 @@ export default function Dashboard() {
 
         {/* Stats */}
         <motion.div 
-          className="grid grid-cols-1 md:grid-cols-3 gap-6"
+          className="grid grid-cols-1 md:grid-cols-3 gap-8"
           variants={itemVariants}
         >
           <GlassmorphicCard className="p-6" hoverEffect>

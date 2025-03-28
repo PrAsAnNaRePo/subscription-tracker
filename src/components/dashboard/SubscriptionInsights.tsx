@@ -502,8 +502,33 @@ export default function SubscriptionInsights() {
     }
   };
 
+  // Format currency values
   const formatCurrency = (value: number) => {
+    if (value === undefined || value === null) return '$0.00';
     return `$${value.toFixed(2)}`;
+  };
+
+  // Simple tooltip component that's guaranteed to work
+  const SimpleTooltip = (props: any) => {
+    const { active, payload, label } = props;
+    
+    if (active && payload && payload.length) {
+      return (
+        <div className="bg-gray-900 p-3 rounded-lg border border-gray-700 shadow-lg">
+          {label && <p className="text-white font-medium mb-1">{label}</p>}
+          {payload.map((entry: any, index: number) => (
+            <p key={`item-${index}`} className="text-white">
+              <span style={{ color: entry.color || '#6366F1' }}>
+                {entry.name || 'Value'}: 
+              </span>{' '}
+              <span className="font-bold">{formatCurrency(entry.value)}</span>
+            </p>
+          ))}
+        </div>
+      );
+    }
+    
+    return null;
   };
 
   if (isLoading) {
@@ -522,21 +547,6 @@ export default function SubscriptionInsights() {
     );
   }
 
-  // Custom tooltip styles for charts
-  const CustomTooltip = ({ active, payload, label }: any) => {
-    if (active && payload && payload.length) {
-      return (
-        <div className="bg-gray-900/90 backdrop-blur-md p-3 rounded-lg border border-gray-700 shadow-xl">
-          <p className="text-gray-300 text-sm">{label}</p>
-          <p className="text-blue-400 font-medium">
-            {formatCurrency(payload[0].value)}
-          </p>
-        </div>
-      );
-    }
-    return null;
-  };
-
   return (
     <div className="space-y-10 mt-6">
       <motion.h2 
@@ -554,51 +564,55 @@ export default function SubscriptionInsights() {
       
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Category Distribution */}
-        <GlassmorphicCard className="p-8 backdrop-blur-2xl" hoverEffect>
-          <h3 className="text-lg font-medium text-white mb-6 bg-gradient-to-r from-indigo-300 to-indigo-100 text-transparent bg-clip-text">
+        <GlassmorphicCard className="p-6 backdrop-blur-2xl" hoverEffect>
+          <h3 className="text-lg font-medium text-white mb-4 bg-gradient-to-r from-indigo-300 to-indigo-100 text-transparent bg-clip-text">
             Spending by Category
           </h3>
-          <div className="h-80">
+          <div className="h-96">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
                   data={categoryData}
                   cx="50%"
                   cy="50%"
-                  labelLine={true}
-                  label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
-                  outerRadius={80}
+                  labelLine={false}
+                  outerRadius={100}
                   fill="#8884d8"
                   dataKey="value"
-                  animationDuration={1000}
-                  animationBegin={300}
+                  nameKey="name"
                 >
                   {categoryData.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={entry.color} />
                   ))}
                 </Pie>
-                <Tooltip content={<CustomTooltip />} />
-                <Legend formatter={(value) => <span className="text-gray-300">{value}</span>} />
+                <Tooltip content={<SimpleTooltip />} />
+                <Legend />
               </PieChart>
             </ResponsiveContainer>
           </div>
         </GlassmorphicCard>
 
         {/* Top Subscriptions */}
-        <GlassmorphicCard className="p-8 backdrop-blur-2xl" hoverEffect>
-          <h3 className="text-lg font-medium text-white mb-6 bg-gradient-to-r from-blue-300 to-blue-100 text-transparent bg-clip-text">
+        <GlassmorphicCard className="p-6 backdrop-blur-2xl" hoverEffect>
+          <h3 className="text-lg font-medium text-white mb-4 bg-gradient-to-r from-blue-300 to-blue-100 text-transparent bg-clip-text">
             Top Subscriptions
           </h3>
-          <div className="h-80">
+          <div className="h-96">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart
+                width={500}
+                height={300}
                 data={topSubscriptions}
-                margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+                margin={{ top: 20, right: 20, left: 10, bottom: 5 }}
               >
                 <defs>
                   <linearGradient id="barGradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="rgba(99, 102, 241, 0.8)" />
-                    <stop offset="100%" stopColor="rgba(79, 70, 229, 0.6)" />
+                    <stop offset="0%" stopColor="rgba(99, 102, 241, 0.4)" />
+                    <stop offset="100%" stopColor="rgba(79, 70, 229, 0.3)" />
+                  </linearGradient>
+                  <linearGradient id="activeBarGradient" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="rgba(139, 92, 246, 0.6)" />
+                    <stop offset="100%" stopColor="rgba(99, 102, 241, 0.5)" />
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
@@ -612,22 +626,36 @@ export default function SubscriptionInsights() {
                   tick={{ fill: 'rgba(255,255,255,0.7)' }}
                   axisLine={{ stroke: 'rgba(255,255,255,0.2)' }}
                 />
-                <Tooltip content={<CustomTooltip />} />
+                <Tooltip 
+                  content={<SimpleTooltip />}
+                  cursor={{ fill: 'rgba(255, 255, 255, 0.1)' }}
+                />
                 <Bar 
+                  name="Amount"
                   dataKey="amount" 
                   fill="url(#barGradient)"
                   radius={[6, 6, 0, 0]}
-                  animationDuration={1000}
-                  animationBegin={600}
-                />
+                  activeBar={{
+                    fill: 'url(#activeBarGradient)',
+                    stroke: 'rgba(255, 255, 255, 0.3)',
+                    strokeWidth: 1
+                  }}
+                >
+                  {topSubscriptions.map((entry, index) => (
+                    <Cell 
+                      key={`cell-${index}`}
+                      fill={`rgba(99, 102, 241, ${0.9 - (index * 0.15)})`}
+                    />
+                  ))}
+                </Bar>
               </BarChart>
             </ResponsiveContainer>
           </div>
         </GlassmorphicCard>
 
         {/* Monthly Trend */}
-        <GlassmorphicCard className="p-8 backdrop-blur-2xl lg:col-span-2" hoverEffect>
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+        <GlassmorphicCard className="p-6 backdrop-blur-2xl lg:col-span-2" hoverEffect>
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-4">
             <h3 className="text-lg font-medium bg-gradient-to-r from-purple-300 to-purple-100 text-transparent bg-clip-text">
               Spending Over Time
             </h3>
@@ -671,12 +699,14 @@ export default function SubscriptionInsights() {
             </div>
           </div>
           
-          <div className="h-80">
+          <div className="h-96">
             {/* Always show the graph, either with real data or test data */}
             <ResponsiveContainer width="100%" height="100%">
               <LineChart
+                width={500}
+                height={300}
                 data={spendingData}
-                margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+                margin={{ top: 20, right: 20, left: 10, bottom: 5 }}
               >
                 <defs>
                   <linearGradient id="lineGradient" x1="0" y1="0" x2="1" y2="0">
@@ -695,8 +725,6 @@ export default function SubscriptionInsights() {
                   tick={{ fill: 'rgba(255,255,255,0.7)' }}
                   axisLine={{ stroke: 'rgba(255,255,255,0.2)' }}
                   tickFormatter={(tick, index) => {
-                    // Show every label for better readability if there are few data points
-                    // otherwise show every other one
                     return spendingData.length <= 6 || index % 2 === 0 ? tick : '';
                   }}
                 />
@@ -705,18 +733,20 @@ export default function SubscriptionInsights() {
                   tick={{ fill: 'rgba(255,255,255,0.7)' }}
                   axisLine={{ stroke: 'rgba(255,255,255,0.2)' }}
                 />
-                <Tooltip content={<CustomTooltip />} />
-                <Legend formatter={(value) => <span className="text-gray-300">{value}</span>} />
+                <Tooltip 
+                  content={<SimpleTooltip />}
+                  cursor={{ stroke: 'rgba(255, 255, 255, 0.3)', strokeWidth: 1 }}
+                />
+                <Legend />
                 <Line
                   type="monotone"
                   dataKey="amount"
+                  name="Monthly Spending"
                   stroke="url(#lineGradient)"
                   strokeWidth={3}
                   dot={{ r: 4, fill: "#4F46E5", stroke: "rgba(99, 102, 241, 0.3)", strokeWidth: 2 }}
                   activeDot={{ r: 8, fill: "#6366F1", stroke: "#fff", strokeWidth: 2 }}
                   connectNulls={true}
-                  animationDuration={1500}
-                  animationBegin={300}
                   fill="url(#areaGradient)"
                 />
               </LineChart>
