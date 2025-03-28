@@ -4,6 +4,10 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { format } from "date-fns";
+import { motion } from "framer-motion";
+import { PlusCircle } from "lucide-react";
+import GlassmorphicCard from "@/components/ui/glassmorphic-card";
+import DashboardBackground from "@/components/ui/dashboard-background";
 
 interface Subscription {
   _id: string;
@@ -14,6 +18,26 @@ interface Subscription {
   category: string;
   status: string;
 }
+
+// Animation variants
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1
+    }
+  }
+};
+
+const itemVariants = {
+  hidden: { y: 20, opacity: 0 },
+  visible: {
+    y: 0,
+    opacity: 1,
+    transition: { type: "spring", stiffness: 100 }
+  }
+};
 
 export default function SubscriptionsList() {
   const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
@@ -74,178 +98,203 @@ export default function SubscriptionsList() {
   if (isLoading) {
     return (
       <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500"></div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="p-4 bg-red-50 text-red-700 rounded-md">
+      <GlassmorphicCard className="p-4 text-red-400">
         {error}
-      </div>
+      </GlassmorphicCard>
     );
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-gray-900">Your Subscriptions</h1>
-        <Link
-          href="/dashboard/subscriptions/add"
-          className="px-4 py-2 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 transition-colors"
-        >
-          Add Subscription
-        </Link>
-      </div>
-
-      {/* Filter */}
-      <div className="flex space-x-4 pb-4">
-        <button
-          onClick={() => setFilter("all")}
-          className={`px-3 py-1 rounded-md ${
-            filter === "all"
-              ? "bg-blue-100 text-blue-800"
-              : "bg-gray-100 text-gray-800"
-          }`}
-        >
-          All
-        </button>
-        <button
-          onClick={() => setFilter("active")}
-          className={`px-3 py-1 rounded-md ${
-            filter === "active"
-              ? "bg-green-100 text-green-800"
-              : "bg-gray-100 text-gray-800"
-          }`}
-        >
-          Active
-        </button>
-        <button
-          onClick={() => setFilter("canceled")}
-          className={`px-3 py-1 rounded-md ${
-            filter === "canceled"
-              ? "bg-red-100 text-red-800"
-              : "bg-gray-100 text-gray-800"
-          }`}
-        >
-          Canceled
-        </button>
-      </div>
-
-      {/* Subscriptions Table */}
-      {filteredSubscriptions.length === 0 ? (
-        <div className="bg-white shadow rounded-lg p-6 text-center">
-          <p className="text-gray-500 mb-4">No subscriptions found.</p>
-          <Link
-            href="/dashboard/subscriptions/add"
-            className="px-4 py-2 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 transition-colors"
+    <>
+      <DashboardBackground />
+      
+      <motion.div 
+        className="space-y-8 px-4 py-10 max-w-7xl mx-auto"
+        initial="hidden"
+        animate="visible"
+        variants={containerVariants}
+      >
+        <div className="flex justify-between items-center">
+          <motion.h1 
+            className="text-3xl font-bold bg-gradient-to-r from-blue-400 via-indigo-500 to-purple-500 text-transparent bg-clip-text"
+            variants={itemVariants}
           >
-            Add Your First Subscription
-          </Link>
+            Your Subscriptions
+          </motion.h1>
+          
+          <motion.div variants={itemVariants}>
+            <Link
+              href="/dashboard/subscriptions/add"
+              className="flex items-center gap-2 px-4 py-2 bg-indigo-500/20 backdrop-blur-md border border-indigo-500/30 text-indigo-300 font-medium rounded-lg hover:bg-indigo-600/30 hover:border-indigo-500/50 hover:text-indigo-200 transition-all shadow-lg"
+            >
+              <PlusCircle size={18} className="text-indigo-300" />
+              <span>Add Subscription</span>
+            </Link>
+          </motion.div>
         </div>
-      ) : (
-        <div className="bg-white shadow overflow-hidden rounded-lg">
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Service
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Category
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Amount
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Billing Cycle
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Next Payment
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Status
-                  </th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {filteredSubscriptions.map((subscription) => (
-                  <tr key={subscription._id}>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm font-medium text-gray-900">
-                        {subscription.serviceName}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-500">
-                        {subscription.category}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-900">
-                        ${subscription.amount.toFixed(2)}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-500">
-                        {subscription.billingCycle.charAt(0).toUpperCase() +
-                          subscription.billingCycle.slice(1)}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-500">
-                        {format(
-                          new Date(subscription.nextBillingDate),
-                          "MMM d, yyyy"
-                        )}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span
-                        className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                          subscription.status === "active"
-                            ? "bg-green-100 text-green-800"
-                            : subscription.status === "canceled"
-                            ? "bg-red-100 text-red-800"
-                            : "bg-yellow-100 text-yellow-800"
-                        }`}
-                      >
-                        {subscription.status.charAt(0).toUpperCase() +
-                          subscription.status.slice(1)}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                      <Link
-                        href={`/dashboard/subscriptions/${subscription._id}`}
-                        className="text-blue-600 hover:text-blue-900 mr-3"
-                      >
-                        View
-                      </Link>
-                      <Link
-                        href={`/dashboard/subscriptions/${subscription._id}/edit`}
-                        className="text-blue-600 hover:text-blue-900 mr-3"
-                      >
-                        Edit
-                      </Link>
-                      <button
-                        onClick={() => handleDelete(subscription._id)}
-                        className="text-red-600 hover:text-red-900"
-                      >
-                        Delete
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
-    </div>
+
+        {/* Filter */}
+        <motion.div 
+          className="flex space-x-4 pb-2"
+          variants={itemVariants}
+        >
+          <button
+            onClick={() => setFilter("all")}
+            className={`px-4 py-2 rounded-lg transition-all ${
+              filter === "all"
+                ? "bg-indigo-500/30 text-indigo-200 border border-indigo-500/40"
+                : "bg-gray-800/30 text-gray-300 border border-gray-700/40 hover:bg-gray-700/30"
+            }`}
+          >
+            All
+          </button>
+          <button
+            onClick={() => setFilter("active")}
+            className={`px-4 py-2 rounded-lg transition-all ${
+              filter === "active"
+                ? "bg-green-500/30 text-green-200 border border-green-500/40"
+                : "bg-gray-800/30 text-gray-300 border border-gray-700/40 hover:bg-gray-700/30"
+            }`}
+          >
+            Active
+          </button>
+          <button
+            onClick={() => setFilter("canceled")}
+            className={`px-4 py-2 rounded-lg transition-all ${
+              filter === "canceled"
+                ? "bg-red-500/30 text-red-200 border border-red-500/40"
+                : "bg-gray-800/30 text-gray-300 border border-gray-700/40 hover:bg-gray-700/30"
+            }`}
+          >
+            Canceled
+          </button>
+        </motion.div>
+
+        {/* Subscriptions Table */}
+        <motion.div variants={itemVariants}>
+          <GlassmorphicCard className="overflow-hidden backdrop-blur-2xl">
+            <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-cyan-500/20 via-teal-500/40 to-cyan-500/20 rounded-t-xl"></div>
+            
+            {filteredSubscriptions.length === 0 ? (
+              <div className="px-8 py-10 text-center">
+                <div className="max-w-md mx-auto">
+                  <p className="text-gray-300 mb-6">
+                    No subscriptions found in this category.
+                  </p>
+                  <Link
+                    href="/dashboard/subscriptions/add"
+                    className="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-cyan-500/20 to-cyan-600/20 backdrop-blur-md border border-cyan-500/30 text-cyan-300 font-medium rounded-lg hover:from-cyan-500/30 hover:to-cyan-600/30 hover:text-cyan-200 transition-all shadow-lg"
+                  >
+                    <PlusCircle size={18} className="text-cyan-300" />
+                    <span>Add Subscription</span>
+                  </Link>
+                </div>
+              </div>
+            ) : (
+              <div className="overflow-x-auto px-2">
+                <table className="min-w-full divide-y divide-gray-700/30">
+                  <thead className="bg-gray-800/40">
+                    <tr>
+                      <th className="px-8 py-4 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                        Service
+                      </th>
+                      <th className="px-8 py-4 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                        Category
+                      </th>
+                      <th className="px-8 py-4 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                        Amount
+                      </th>
+                      <th className="px-8 py-4 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                        Billing Cycle
+                      </th>
+                      <th className="px-8 py-4 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                        Next Payment
+                      </th>
+                      <th className="px-8 py-4 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                        Status
+                      </th>
+                      <th className="px-8 py-4 text-right text-xs font-medium text-gray-300 uppercase tracking-wider">
+                        Actions
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-700/30">
+                    {filteredSubscriptions.map((subscription) => (
+                      <tr key={subscription._id} className="hover:bg-gray-800/30 transition-colors">
+                        <td className="px-8 py-5 whitespace-nowrap">
+                          <div className="text-sm font-medium text-white">
+                            {subscription.serviceName}
+                          </div>
+                        </td>
+                        <td className="px-8 py-5 whitespace-nowrap">
+                          <div className="text-sm text-gray-300">
+                            {subscription.category}
+                          </div>
+                        </td>
+                        <td className="px-8 py-5 whitespace-nowrap">
+                          <div className="text-sm font-medium text-teal-300">
+                            ${subscription.amount.toFixed(2)}
+                          </div>
+                        </td>
+                        <td className="px-8 py-5 whitespace-nowrap">
+                          <div className="text-sm text-gray-300">
+                            {subscription.billingCycle.charAt(0).toUpperCase() + subscription.billingCycle.slice(1)}
+                          </div>
+                        </td>
+                        <td className="px-8 py-5 whitespace-nowrap">
+                          <div className="text-sm text-gray-300">
+                            {format(new Date(subscription.nextBillingDate), "MMM d, yyyy")}
+                          </div>
+                        </td>
+                        <td className="px-8 py-5 whitespace-nowrap">
+                          <span
+                            className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                              subscription.status === "active"
+                                ? "bg-green-500/20 text-green-300 border border-green-500/30"
+                                : subscription.status === "canceled"
+                                ? "bg-red-500/20 text-red-300 border border-red-500/30"
+                                : "bg-yellow-500/20 text-yellow-300 border border-yellow-500/30"
+                            }`}
+                          >
+                            {subscription.status.charAt(0).toUpperCase() + subscription.status.slice(1)}
+                          </span>
+                        </td>
+                        <td className="px-8 py-5 whitespace-nowrap text-right text-sm font-medium">
+                          <Link
+                            href={`/dashboard/subscriptions/${subscription._id}`}
+                            className="text-cyan-400 hover:text-cyan-300 mr-4 transition-colors"
+                          >
+                            View
+                          </Link>
+                          <Link
+                            href={`/dashboard/subscriptions/${subscription._id}/edit`}
+                            className="text-cyan-400 hover:text-cyan-300 mr-4 transition-colors"
+                          >
+                            Edit
+                          </Link>
+                          <button
+                            onClick={() => handleDelete(subscription._id)}
+                            className="text-red-400 hover:text-red-300 transition-colors"
+                          >
+                            Delete
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </GlassmorphicCard>
+        </motion.div>
+      </motion.div>
+    </>
   );
 }

@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { format } from "date-fns";
+import { PlusCircle, Calendar, CreditCard } from "lucide-react";
 import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
 
@@ -153,13 +154,61 @@ export default function SubscriptionForm({
     }
   };
 
+  // Custom select component to match the theme
+  const CustomSelect = ({ label, id, name, value, onChange, options }: any) => (
+    <div>
+      <label
+        htmlFor={id}
+        className="block text-sm font-medium text-gray-300 mb-2"
+      >
+        {label}
+      </label>
+      <select
+        id={id}
+        name={name}
+        value={value}
+        onChange={onChange}
+        className="w-full px-3 py-2 rounded-lg shadow-md focus:outline-none bg-gray-800/40 backdrop-blur-md border border-gray-700/50 text-gray-200 focus:border-indigo-500/50 hover:border-gray-600/70 transition-all"
+      >
+        {options.map((option: any) => (
+          <option key={typeof option === 'string' ? option : option.value} value={typeof option === 'string' ? option : option.value}>
+            {typeof option === 'string' ? option : option.label}
+          </option>
+        ))}
+      </select>
+    </div>
+  );
+
+  // Custom textarea component to match the theme
+  const CustomTextarea = ({ label, id, name, value, onChange, rows = 3, placeholder }: any) => (
+    <div>
+      <label
+        htmlFor={id}
+        className="block text-sm font-medium text-gray-300 mb-2"
+      >
+        {label}
+      </label>
+      <textarea
+        id={id}
+        name={name}
+        value={value}
+        onChange={onChange}
+        rows={rows}
+        className="w-full px-3 py-2 rounded-lg shadow-md focus:outline-none bg-gray-800/40 backdrop-blur-md border border-gray-700/50 text-gray-200 focus:border-indigo-500/50 hover:border-gray-600/70 transition-all"
+        placeholder={placeholder}
+      />
+    </div>
+  );
+
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form onSubmit={handleSubmit} className="space-y-8">
       {error && (
-        <div className="p-3 bg-red-50 text-red-700 rounded-md">{error}</div>
+        <div className="p-4 rounded-lg backdrop-blur-md bg-red-500/10 text-red-300 border border-red-500/30">
+          {error}
+        </div>
       )}
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         <Input
           label="Service Name"
           id="serviceName"
@@ -170,151 +219,109 @@ export default function SubscriptionForm({
           required
         />
 
-        <div>
-          <label
-            htmlFor="category"
-            className="block text-sm font-medium text-gray-700 mb-1"
-          >
-            Category
-          </label>
-          <select
-            id="category"
-            name="category"
-            value={formData.category}
+        <CustomSelect
+          label="Category"
+          id="category"
+          name="category"
+          value={formData.category}
+          onChange={handleChange}
+          options={categories}
+        />
+
+        <div className="relative">
+          <Input
+            label="Amount"
+            id="amount"
+            name="amount"
+            type="number"
+            step="0.01"
+            value={formData.amount}
             onChange={handleChange}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-          >
-            {categories.map((category) => (
-              <option key={category} value={category}>
-                {category}
-              </option>
-            ))}
-          </select>
+            placeholder="19.99"
+            required
+            className="pl-8"
+          />
+          <span className="absolute left-3 top-9 text-gray-400">$</span>
         </div>
 
-        <Input
-          label="Amount"
-          id="amount"
-          name="amount"
-          type="number"
-          step="0.01"
-          value={formData.amount}
+        <CustomSelect
+          label="Billing Cycle"
+          id="billingCycle"
+          name="billingCycle"
+          value={formData.billingCycle}
           onChange={handleChange}
-          placeholder="19.99"
-          required
+          options={billingCycles}
         />
 
-        <div>
-          <label
-            htmlFor="billingCycle"
-            className="block text-sm font-medium text-gray-700 mb-1"
-          >
-            Billing Cycle
-          </label>
-          <select
-            id="billingCycle"
-            name="billingCycle"
-            value={formData.billingCycle}
+        <div className="relative">
+          <Input
+            label="Start Date"
+            id="startDate"
+            name="startDate"
+            type="date"
+            value={formData.startDate}
             onChange={handleChange}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-          >
-            {billingCycles.map((cycle) => (
-              <option key={cycle.value} value={cycle.value}>
-                {cycle.label}
-              </option>
-            ))}
-          </select>
+            required
+          />
+          <Calendar size={16} className="absolute right-3 top-9 text-gray-400" />
         </div>
 
-        <Input
-          label="Start Date"
-          id="startDate"
-          name="startDate"
-          type="date"
-          value={formData.startDate}
-          onChange={handleChange}
-          required
-        />
-
-        <Input
-          label="Next Billing Date"
-          id="nextBillingDate"
-          name="nextBillingDate"
-          type="date"
-          value={formData.nextBillingDate}
-          onChange={handleChange}
-          required
-        />
-
-        <Input
-          label="Payment Method"
-          id="paymentMethod"
-          name="paymentMethod"
-          value={formData.paymentMethod}
-          onChange={handleChange}
-          placeholder="Credit Card, PayPal, etc."
-        />
-
-        <div>
-          <label
-            htmlFor="status"
-            className="block text-sm font-medium text-gray-700 mb-1"
-          >
-            Status
-          </label>
-          <select
-            id="status"
-            name="status"
-            value={formData.status}
+        <div className="relative">
+          <Input
+            label="Next Billing Date"
+            id="nextBillingDate"
+            name="nextBillingDate"
+            type="date"
+            value={formData.nextBillingDate}
             onChange={handleChange}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-          >
-            {statusOptions.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </select>
+            required
+          />
+          <Calendar size={16} className="absolute right-3 top-9 text-gray-400" />
         </div>
-      </div>
 
-      <div>
-        <label
-          htmlFor="description"
-          className="block text-sm font-medium text-gray-700 mb-1"
-        >
-          Description
-        </label>
-        <textarea
-          id="description"
-          name="description"
-          value={formData.description}
+        <div className="relative">
+          <Input
+            label="Payment Method"
+            id="paymentMethod"
+            name="paymentMethod"
+            value={formData.paymentMethod}
+            onChange={handleChange}
+            placeholder="Credit Card, PayPal, etc."
+          />
+          <CreditCard size={16} className="absolute right-3 top-9 text-gray-400" />
+        </div>
+
+        <CustomSelect
+          label="Status"
+          id="status"
+          name="status"
+          value={formData.status}
           onChange={handleChange}
-          rows={2}
-          className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-          placeholder="Subscription details..."
+          options={statusOptions}
         />
       </div>
 
-      <div>
-        <label
-          htmlFor="notes"
-          className="block text-sm font-medium text-gray-700 mb-1"
-        >
-          Notes
-        </label>
-        <textarea
-          id="notes"
-          name="notes"
-          value={formData.notes}
-          onChange={handleChange}
-          rows={3}
-          className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-          placeholder="Additional notes..."
-        />
-      </div>
+      <CustomTextarea
+        label="Description"
+        id="description"
+        name="description"
+        value={formData.description}
+        onChange={handleChange}
+        rows={2}
+        placeholder="Subscription details..."
+      />
 
-      <div className="flex justify-end space-x-3">
+      <CustomTextarea
+        label="Notes"
+        id="notes"
+        name="notes"
+        value={formData.notes}
+        onChange={handleChange}
+        rows={3}
+        placeholder="Additional notes..."
+      />
+
+      <div className="flex justify-end space-x-4">
         <Button
           type="button"
           variant="outline"
@@ -322,8 +329,15 @@ export default function SubscriptionForm({
         >
           Cancel
         </Button>
-        <Button type="submit" isLoading={isLoading}>
-          {isEdit ? "Update" : "Create"} Subscription
+        <Button type="submit" isLoading={isLoading} className="flex items-center gap-2">
+          {isEdit ? (
+            "Update Subscription"
+          ) : (
+            <>
+              <PlusCircle size={16} />
+              <span>Create Subscription</span>
+            </>
+          )}
         </Button>
       </div>
     </form>

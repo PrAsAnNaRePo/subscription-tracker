@@ -15,12 +15,12 @@ export default function Button({
   disabled,
   ...props
 }: ButtonProps) {
-  const baseStyles = "px-4 py-2 rounded-md font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors";
+  const baseStyles = "px-4 py-2 rounded-lg font-medium focus:outline-none transition-all shadow-lg backdrop-blur-md";
   
   const variantStyles = {
-    primary: "bg-blue-600 hover:bg-blue-700 text-white focus:ring-blue-500",
-    secondary: "bg-gray-200 hover:bg-gray-300 text-gray-900 focus:ring-gray-500",
-    outline: "border border-gray-300 hover:bg-gray-50 focus:ring-blue-500",
+    primary: "bg-indigo-500/20 border border-indigo-500/30 text-indigo-300 hover:bg-indigo-600/30 hover:border-indigo-500/50 hover:text-indigo-200",
+    secondary: "bg-gray-800/40 border border-gray-700/40 text-gray-300 hover:bg-gray-700/50 hover:border-gray-600/50 hover:text-gray-200",
+    outline: "border border-cyan-500/30 text-cyan-300 hover:bg-cyan-500/10 hover:border-cyan-400/40 hover:text-cyan-200",
   };
   
   return (

@@ -5,6 +5,8 @@ import {
   PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, 
   CartesianGrid, Tooltip, Legend, ResponsiveContainer, LineChart, Line
 } from "recharts";
+import { motion } from "framer-motion";
+import GlassmorphicCard from "../ui/glassmorphic-card";
 
 // Types
 interface Subscription {
@@ -15,6 +17,7 @@ interface Subscription {
   nextBillingDate: string;
   category: string;
   startDate: string;
+  status?: string;
 }
 
 interface CategoryData {
@@ -30,9 +33,10 @@ interface SpendingData {
 
 type TimeScale = "6months" | "1year" | "all";
 
+// Modern color palette with vibrant, high-contrast colors
 const COLORS = [
-  "#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#8884D8", 
-  "#82CA9D", "#A4DE6C", "#D0ED57", "#FFC658", "#FF7300"
+  "#6366f1", "#10b981", "#f472b6", "#f97316", "#8b5cf6", 
+  "#06b6d4", "#eab308", "#ec4899", "#14b8a6", "#a855f7"
 ];
 
 export default function SubscriptionInsights() {
@@ -512,20 +516,46 @@ export default function SubscriptionInsights() {
 
   if (error) {
     return (
-      <div className="p-4 bg-red-50 text-red-700 rounded-md">
+      <GlassmorphicCard className="p-4 text-red-400">
         {error}
-      </div>
+      </GlassmorphicCard>
     );
   }
 
+  // Custom tooltip styles for charts
+  const CustomTooltip = ({ active, payload, label }: any) => {
+    if (active && payload && payload.length) {
+      return (
+        <div className="bg-gray-900/90 backdrop-blur-md p-3 rounded-lg border border-gray-700 shadow-xl">
+          <p className="text-gray-300 text-sm">{label}</p>
+          <p className="text-blue-400 font-medium">
+            {formatCurrency(payload[0].value)}
+          </p>
+        </div>
+      );
+    }
+    return null;
+  };
+
   return (
-    <div className="space-y-6">
-      <h2 className="text-xl font-bold text-gray-900">Spending Insights</h2>
+    <div className="space-y-10 mt-6">
+      <motion.h2 
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="text-xl font-bold bg-gradient-to-r from-indigo-400 via-blue-500 to-cyan-400 text-transparent bg-clip-text flex items-center gap-2"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-indigo-400" viewBox="0 0 20 20" fill="currentColor">
+          <path d="M2 10a8 8 0 018-8v8h8a8 8 0 11-16 0z" />
+          <path d="M12 2.252A8.014 8.014 0 0117.748 8H12V2.252z" />
+        </svg>
+        Spending Insights
+      </motion.h2>
       
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Category Distribution */}
-        <div className="bg-white shadow rounded-lg p-6">
-          <h3 className="text-lg font-medium text-gray-900 mb-4">
+        <GlassmorphicCard className="p-8 backdrop-blur-2xl" hoverEffect>
+          <h3 className="text-lg font-medium text-white mb-6 bg-gradient-to-r from-indigo-300 to-indigo-100 text-transparent bg-clip-text">
             Spending by Category
           </h3>
           <div className="h-80">
@@ -540,21 +570,23 @@ export default function SubscriptionInsights() {
                   outerRadius={80}
                   fill="#8884d8"
                   dataKey="value"
+                  animationDuration={1000}
+                  animationBegin={300}
                 >
                   {categoryData.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={entry.color} />
                   ))}
                 </Pie>
-                <Tooltip formatter={(value) => formatCurrency(value as number)} />
-                <Legend />
+                <Tooltip content={<CustomTooltip />} />
+                <Legend formatter={(value) => <span className="text-gray-300">{value}</span>} />
               </PieChart>
             </ResponsiveContainer>
           </div>
-        </div>
+        </GlassmorphicCard>
 
         {/* Top Subscriptions */}
-        <div className="bg-white shadow rounded-lg p-6">
-          <h3 className="text-lg font-medium text-gray-900 mb-4">
+        <GlassmorphicCard className="p-8 backdrop-blur-2xl" hoverEffect>
+          <h3 className="text-lg font-medium text-white mb-6 bg-gradient-to-r from-blue-300 to-blue-100 text-transparent bg-clip-text">
             Top Subscriptions
           </h3>
           <div className="h-80">
@@ -563,53 +595,79 @@ export default function SubscriptionInsights() {
                 data={topSubscriptions}
                 margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
               >
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="name" />
-                <YAxis tickFormatter={formatCurrency} />
-                <Tooltip formatter={(value) => formatCurrency(value as number)} />
-                <Bar dataKey="amount" fill="#8884d8" />
+                <defs>
+                  <linearGradient id="barGradient" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="rgba(99, 102, 241, 0.8)" />
+                    <stop offset="100%" stopColor="rgba(79, 70, 229, 0.6)" />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
+                <XAxis 
+                  dataKey="name" 
+                  tick={{ fill: 'rgba(255,255,255,0.7)' }}
+                  axisLine={{ stroke: 'rgba(255,255,255,0.2)' }}
+                />
+                <YAxis 
+                  tickFormatter={formatCurrency} 
+                  tick={{ fill: 'rgba(255,255,255,0.7)' }}
+                  axisLine={{ stroke: 'rgba(255,255,255,0.2)' }}
+                />
+                <Tooltip content={<CustomTooltip />} />
+                <Bar 
+                  dataKey="amount" 
+                  fill="url(#barGradient)"
+                  radius={[6, 6, 0, 0]}
+                  animationDuration={1000}
+                  animationBegin={600}
+                />
               </BarChart>
             </ResponsiveContainer>
           </div>
-        </div>
+        </GlassmorphicCard>
 
         {/* Monthly Trend */}
-        <div className="bg-white shadow rounded-lg p-6 lg:col-span-2">
-          <div className="flex justify-between items-center mb-4">
-            <h3 className="text-lg font-medium text-gray-900">
+        <GlassmorphicCard className="p-8 backdrop-blur-2xl lg:col-span-2" hoverEffect>
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+            <h3 className="text-lg font-medium bg-gradient-to-r from-purple-300 to-purple-100 text-transparent bg-clip-text">
               Spending Over Time
             </h3>
-            <div className="flex space-x-2">
-              <button
+            <div className="flex bg-gray-900/50 p-1 rounded-lg backdrop-blur-md border border-gray-800/50">
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
                 onClick={() => setTimeScale("6months")}
-                className={`px-3 py-1 text-sm rounded-md ${
+                className={`px-4 py-1.5 text-sm rounded-md transition-all ${
                   timeScale === "6months"
-                    ? "bg-blue-600 text-white"
-                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                    ? "bg-indigo-600/90 text-white shadow-lg"
+                    : "text-gray-300 hover:bg-gray-800/50"
                 }`}
               >
                 6 Months
-              </button>
-              <button
+              </motion.button>
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
                 onClick={() => setTimeScale("1year")}
-                className={`px-3 py-1 text-sm rounded-md ${
+                className={`px-4 py-1.5 text-sm rounded-md transition-all ${
                   timeScale === "1year"
-                    ? "bg-blue-600 text-white"
-                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                    ? "bg-indigo-600/90 text-white shadow-lg"
+                    : "text-gray-300 hover:bg-gray-800/50"
                 }`}
               >
                 1 Year
-              </button>
-              <button
+              </motion.button>
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
                 onClick={() => setTimeScale("all")}
-                className={`px-3 py-1 text-sm rounded-md ${
+                className={`px-4 py-1.5 text-sm rounded-md transition-all ${
                   timeScale === "all"
-                    ? "bg-blue-600 text-white"
-                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                    ? "bg-indigo-600/90 text-white shadow-lg"
+                    : "text-gray-300 hover:bg-gray-800/50"
                 }`}
               >
                 All Time
-              </button>
+              </motion.button>
             </div>
           </div>
           
@@ -620,32 +678,51 @@ export default function SubscriptionInsights() {
                 data={spendingData}
                 margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
               >
-                <CartesianGrid strokeDasharray="3 3" />
+                <defs>
+                  <linearGradient id="lineGradient" x1="0" y1="0" x2="1" y2="0">
+                    <stop offset="0%" stopColor="#6366F1" />
+                    <stop offset="50%" stopColor="#4F46E5" />
+                    <stop offset="100%" stopColor="#8B5CF6" />
+                  </linearGradient>
+                  <linearGradient id="areaGradient" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="rgba(99, 102, 241, 0.4)" />
+                    <stop offset="100%" stopColor="rgba(79, 70, 229, 0)" />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
                 <XAxis 
                   dataKey="date" 
+                  tick={{ fill: 'rgba(255,255,255,0.7)' }}
+                  axisLine={{ stroke: 'rgba(255,255,255,0.2)' }}
                   tickFormatter={(tick, index) => {
                     // Show every label for better readability if there are few data points
                     // otherwise show every other one
                     return spendingData.length <= 6 || index % 2 === 0 ? tick : '';
                   }}
                 />
-                <YAxis tickFormatter={formatCurrency} />
-                <Tooltip formatter={(value) => formatCurrency(value as number)} />
-                <Legend />
+                <YAxis 
+                  tickFormatter={formatCurrency} 
+                  tick={{ fill: 'rgba(255,255,255,0.7)' }}
+                  axisLine={{ stroke: 'rgba(255,255,255,0.2)' }}
+                />
+                <Tooltip content={<CustomTooltip />} />
+                <Legend formatter={(value) => <span className="text-gray-300">{value}</span>} />
                 <Line
                   type="monotone"
                   dataKey="amount"
-                  stroke="#8884d8"
-                  strokeWidth={2}
-                  dot={{ r: 3 }}
-                  activeDot={{ r: 8 }}
-                  // Make the line smooth with curve interpolation
+                  stroke="url(#lineGradient)"
+                  strokeWidth={3}
+                  dot={{ r: 4, fill: "#4F46E5", stroke: "rgba(99, 102, 241, 0.3)", strokeWidth: 2 }}
+                  activeDot={{ r: 8, fill: "#6366F1", stroke: "#fff", strokeWidth: 2 }}
                   connectNulls={true}
+                  animationDuration={1500}
+                  animationBegin={300}
+                  fill="url(#areaGradient)"
                 />
               </LineChart>
             </ResponsiveContainer>
           </div>
-        </div>
+        </GlassmorphicCard>
       </div>
     </div>
   );
