@@ -6,10 +6,8 @@ services:
       dockerfile: Dockerfile
     ports:
       - 3000:3000
-    environment:
-      - MONGODB_URI=mongodb://mongo:27017/subscription-tracker
-      - NEXTAUTH_SECRET=nnpy
-      - NEXTAUTH_URL=http://localhost:3000
+    env_file:
+      - .env.local
     depends_on:
       - mongo
     volumes:
