@@ -1,11 +1,26 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { signIn } from "next-auth/react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
 import { ArrowRight, LogIn } from "lucide-react";
+
+// Component to handle search params
+function SearchParamsHandler({ setShowSuccessMessage }: { setShowSuccessMessage: (value: boolean) => void }) {
+  const searchParams = useSearchParams();
+  
+  useEffect(() => {
+    // Check if user just registered
+    const registered = searchParams?.get("registered");
+    if (registered === "true") {
+      setShowSuccessMessage(true);
+    }
+  }, [searchParams, setShowSuccessMessage]);
+  
+  return null;
+}
 
 export default function SignIn() {
   const [formData, setFormData] = useState({
@@ -16,15 +31,6 @@ export default function SignIn() {
   const [isLoading, setIsLoading] = useState(false);
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
   const router = useRouter();
-  const searchParams = useSearchParams();
-
-  useEffect(() => {
-    // Check if user just registered
-    const registered = searchParams?.get("registered");
-    if (registered === "true") {
-      setShowSuccessMessage(true);
-    }
-  }, [searchParams]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -127,6 +133,10 @@ export default function SignIn() {
             Sign in to manage your subscriptions
           </motion.p>
         </div>
+        
+        <Suspense fallback={<div>Loading...</div>}>
+          <SearchParamsHandler setShowSuccessMessage={setShowSuccessMessage} />
+        </Suspense>
         
         {showSuccessMessage && (
           <motion.div 
