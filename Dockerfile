@@ -17,5 +17,5 @@ RUN NODE_OPTIONS="--max_old_space_size=4096" npm run build
 # Expose the port the app will run on
 EXPOSE 3000
 
-# Start the application with Webpack (not Turbopack)
-CMD ["npm", "run", "start"]
+# For standalone output, we need to use node directly on the standalone server.js
+CMD ["node", ".next/standalone/server.js"]

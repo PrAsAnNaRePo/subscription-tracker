@@ -14,8 +14,10 @@ const nextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
   },
-  // Ensure we're using the correct output mode
+  // Configure standalone output
   output: 'standalone',
+  // Ensure we include the correct output directory
+  outputFileTracing: true,
 }
 
 module.exports = nextConfig
