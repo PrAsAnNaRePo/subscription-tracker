@@ -10,10 +10,6 @@ services:
       - .env.local
     depends_on:
       - mongo
-    volumes:
-      - ./:/app
-      - /app/node_modules
-      - /app/.next
 
   mongo:
     image: mongo:latest
